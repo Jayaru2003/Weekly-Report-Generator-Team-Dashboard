@@ -1,6 +1,6 @@
-package com.weeklyreport.repository;
+package com.company.weeklyreport.repository;
 
-import com.weeklyreport.entity.User;
+import com.company.weeklyreport.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.weeklyreport.dto;
+package com.company.weeklyreport.dto;
 
 // DTO classes will be added in subsequent implementation phases.
 // Planned DTOs:

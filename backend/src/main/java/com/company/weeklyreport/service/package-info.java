@@ -1,4 +1,4 @@
-package com.weeklyreport.service;
+package com.company.weeklyreport.service;
 
 // Service classes will be added in subsequent implementation phases.
 // Planned services:

@@ -1,18 +1,31 @@
 import { Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuthContext } from '../../context/AuthContext';
-import type { UserRole } from '../../types/user';
+import type { UserRole } from '../../types/auth';
 
-export function ProtectedRoute({ allowedRoles, children }: { allowedRoles: UserRole[]; children: ReactNode }) {
-  const { token, user } = useAuthContext();
+function defaultRouteForRole(role: UserRole): string {
+  return role === 'MANAGER' ? '/dashboard' : '/my-reports';
+}
 
-  if (!token) {
+type ProtectedRouteProps = {
+  children: ReactNode;
+  role?: UserRole;
+};
+
+export function ProtectedRoute({ role, children }: ProtectedRouteProps) {
+  const { isAuthenticated, user } = useAuthContext();
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.role && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+  if (role && user?.role !== role) {
+    return <Navigate to={user?.role ? defaultRouteForRole(user.role) : '/login'} replace />;
   }
 
   return <>{children}</>;
+}
+
+export function postLoginRoute(role: UserRole): string {
+  return defaultRouteForRole(role);
 }

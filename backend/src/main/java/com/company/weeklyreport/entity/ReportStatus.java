@@ -1,4 +1,4 @@
-package com.weeklyreport.entity;
+package com.company.weeklyreport.entity;
 
 /**
  * ReportStatus enum for the lifecycle of a weekly report.

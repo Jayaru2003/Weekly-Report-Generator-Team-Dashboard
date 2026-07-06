@@ -1,37 +1,43 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-
-type AuthUser = {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  role?: 'MEMBER' | 'MANAGER';
-};
+import { setAuthToken } from '../api/axiosClient';
+import type { AuthResponse, AuthUser } from '../types/auth';
 
 type AuthContextValue = {
   user: AuthUser | null;
   token: string | null;
-  login: (token: string, user: AuthUser) => void;
+  isAuthenticated: boolean;
+  login: (response: AuthResponse) => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+function toAuthUser(response: AuthResponse): AuthUser {
+  return {
+    id: response.id,
+    firstName: response.firstName,
+    lastName: response.lastName,
+    email: response.email,
+    role: response.role,
+  };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(null);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       token,
-      login: (nextToken, nextUser) => {
-        localStorage.setItem('token', nextToken);
-        setToken(nextToken);
-        setUser(nextUser);
+      isAuthenticated: token !== null && user !== null,
+      login: (response) => {
+        setAuthToken(response.token);
+        setToken(response.token);
+        setUser(toAuthUser(response));
       },
       logout: () => {
-        localStorage.removeItem('token');
+        setAuthToken(null);
         setToken(null);
         setUser(null);
       },

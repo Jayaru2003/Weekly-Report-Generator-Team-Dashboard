@@ -1,4 +1,4 @@
-package com.weeklyreport.exception;
+package com.company.weeklyreport.exception;
 
 // Exception handling infrastructure will be added in subsequent phases.
 // Planned classes:
