@@ -36,23 +36,13 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-  
+      
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DE4D3B31E5BF4D539126DB4516F2D346 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8308803B8A974EFBBE6289E5684F9476 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DE8573DCCCEA44968ECD6A0623DC7025 }}
-
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -60,4 +50,4 @@ jobs:
           app-name: 'Weekly-Report-Generator-Team-Dashboard'
           slot-name: 'Production'
           package: '*.jar'
-          
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3A99E21B3D3D47AB90721FB4C9719EA2 }}
