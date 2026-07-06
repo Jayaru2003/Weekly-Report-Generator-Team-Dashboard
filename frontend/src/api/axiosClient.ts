@@ -3,6 +3,16 @@ import type { InternalAxiosRequestConfig } from 'axios';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
 
+let inMemoryToken: string | null = null;
+
+export function setAuthToken(token: string | null) {
+  inMemoryToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return inMemoryToken;
+}
+
 export const axiosClient = axios.create({
   baseURL,
   headers: {
@@ -11,7 +21,7 @@ export const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem('token');
+  const token = getAuthToken();
 
   if (token) {
     config.headers = config.headers ?? {};

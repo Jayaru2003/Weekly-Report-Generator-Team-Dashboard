@@ -1,4 +1,4 @@
-package com.weeklyreport.controller;
+package com.company.weeklyreport.controller;
 
 // REST controllers will be added in subsequent implementation phases.
 // Planned controllers:

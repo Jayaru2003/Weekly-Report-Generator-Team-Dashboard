@@ -1,4 +1,4 @@
-package com.weeklyreport.config;
+package com.company.weeklyreport.config;
 
 // Configuration beans will be added in subsequent implementation phases.
 // Planned config classes:

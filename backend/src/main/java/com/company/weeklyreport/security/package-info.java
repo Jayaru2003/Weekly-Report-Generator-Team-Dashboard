@@ -1,4 +1,4 @@
-package com.weeklyreport.security;
+package com.company.weeklyreport.security;
 
 // Security infrastructure will be added in the JWT auth phase.
 // Planned classes:

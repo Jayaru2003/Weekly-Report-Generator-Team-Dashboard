@@ -1,4 +1,4 @@
-package com.weeklyreport.entity;
+package com.company.weeklyreport.entity;
 
 /**
  * Role enum representing the two access levels in the system.

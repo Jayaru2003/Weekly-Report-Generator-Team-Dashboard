@@ -1,3 +1,4 @@
+/* Sidebar is unused — navigation is handled by Navbar */
 export function Sidebar() {
-  return <aside>Sidebar</aside>;
+  return null;
 }

@@ -9,21 +9,21 @@ import { TeamDashboardPage } from '../features/dashboard/TeamDashboardPage';
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={['MANAGER', 'MEMBER']}>
+          <ProtectedRoute>
             <TeamDashboardPage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/reports"
+        path="/my-reports"
         element={
-          <ProtectedRoute allowedRoles={['MANAGER', 'MEMBER']}>
+          <ProtectedRoute>
             <MyReportsPage />
           </ProtectedRoute>
         }
@@ -31,7 +31,7 @@ export default function AppRoutes() {
       <Route
         path="/projects"
         element={
-          <ProtectedRoute allowedRoles={['MANAGER']}>
+          <ProtectedRoute role="MANAGER">
             <ProjectsPage />
           </ProtectedRoute>
         }
