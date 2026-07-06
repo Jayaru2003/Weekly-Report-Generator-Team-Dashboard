@@ -55,4 +55,12 @@ public class ProjectController {
     public void deleteProject(@PathVariable UUID id) {
         projectService.softDeleteProject(id);
     }
+
+    @PutMapping("/{id}/members")
+    @PreAuthorize("hasRole('MANAGER')")
+    public void updateProjectMembers(
+            @PathVariable UUID id,
+            @RequestBody List<UUID> userIds) {
+        projectService.updateProjectMembers(id, userIds);
+    }
 }

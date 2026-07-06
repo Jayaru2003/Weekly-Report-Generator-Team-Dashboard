@@ -2,11 +2,10 @@ package com.company.weeklyreport.service;
 
 import com.company.weeklyreport.dto.report.ReportRequest;
 import com.company.weeklyreport.dto.report.ReportResponse;
-import com.company.weeklyreport.entity.Project;
-import com.company.weeklyreport.entity.ReportStatus;
-import com.company.weeklyreport.entity.User;
-import com.company.weeklyreport.entity.WeeklyReport;
+import com.company.weeklyreport.entity.*;
 import com.company.weeklyreport.repository.ProjectRepository;
+import com.company.weeklyreport.repository.ReportCommentRepository;
+import com.company.weeklyreport.repository.UserProjectRepository;
 import com.company.weeklyreport.repository.WeeklyReportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,9 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -29,6 +31,8 @@ public class ReportService {
 
     private final WeeklyReportRepository reportRepository;
     private final ProjectRepository      projectRepository;
+    private final UserProjectRepository  userProjectRepository;
+    private final ReportCommentRepository commentRepository;
 
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -38,11 +42,33 @@ public class ReportService {
 
         Project project = findProjectOrThrow(request.projectId());
 
+        // Validate project assignment for members
+        if (principal.getRole() == Role.MEMBER) {
+            boolean isAssigned = userProjectRepository.existsByUserIdAndProjectId(principal.getId(), project.getId());
+            if (!isAssigned) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "You are not assigned to project: " + project.getName());
+            }
+        }
+
+        LocalDate normalizedStart = request.weekStartDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate normalizedEnd = normalizedStart.plusDays(6);
+
+        // Check if report already exists for this week and project
+        Optional<WeeklyReport> existing = reportRepository.findByUserIdAndProjectIdAndWeekStartDate(
+                principal.getId(), project.getId(), normalizedStart);
+        if (existing.isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "A report already exists for this week and project");
+        }
+
         WeeklyReport report = WeeklyReport.builder()
                 .user(principal)
                 .project(project)
-                .weekStartDate(request.weekStartDate())
-                .weekEndDate(request.weekEndDate())
+                .weekStartDate(normalizedStart)
+                .weekEndDate(normalizedEnd)
                 .tasksCompleted(request.tasksCompleted())
                 .tasksPlanned(request.tasksPlanned())
                 .blockers(request.blockers())
@@ -61,23 +87,57 @@ public class ReportService {
         WeeklyReport report = findOrThrow(id);
         checkOwnership(report, principal);
 
+        // Allow editing of DRAFT or REJECTED reports only
         if (report.getStatus() == ReportStatus.SUBMITTED) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "Submitted reports cannot be edited");
         }
+        if (report.getStatus() == ReportStatus.APPROVED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Approved reports cannot be edited");
+        }
 
         validateDates(request.weekStartDate(), request.weekEndDate());
         Project project = findProjectOrThrow(request.projectId());
 
+        // Validate project assignment for members
+        if (principal.getRole() == Role.MEMBER) {
+            boolean isAssigned = userProjectRepository.existsByUserIdAndProjectId(principal.getId(), project.getId());
+            if (!isAssigned) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "You are not assigned to project: " + project.getName());
+            }
+        }
+
+        LocalDate normalizedStart = request.weekStartDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate normalizedEnd = normalizedStart.plusDays(6);
+
+        // Check if updating to a week and project that conflicts with another report
+        Optional<WeeklyReport> existing = reportRepository.findByUserIdAndProjectIdAndWeekStartDate(
+                principal.getId(), project.getId(), normalizedStart);
+        if (existing.isPresent() && !existing.get().getId().equals(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "A report already exists for this week and project");
+        }
+
         report.setProject(project);
-        report.setWeekStartDate(request.weekStartDate());
-        report.setWeekEndDate(request.weekEndDate());
+        report.setWeekStartDate(normalizedStart);
+        report.setWeekEndDate(normalizedEnd);
         report.setTasksCompleted(request.tasksCompleted());
         report.setTasksPlanned(request.tasksPlanned());
         report.setBlockers(request.blockers());
         report.setHoursWorked(request.hoursWorked());
         report.setNotes(request.notes());
+
+        // If editing a rejected report, clear review fields so it's ready for re-review
+        if (report.getStatus() == ReportStatus.REJECTED) {
+            report.setReviewedAt(null);
+            report.setReviewedBy(null);
+        }
 
         return ReportResponse.from(reportRepository.save(report));
     }
@@ -94,11 +154,67 @@ public class ReportService {
                     HttpStatus.CONFLICT,
                     "Report is already submitted");
         }
+        if (report.getStatus() == ReportStatus.APPROVED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Approved reports cannot be resubmitted");
+        }
 
+        // Clear any previous review data when resubmitting from REJECTED
+        report.setReviewedAt(null);
+        report.setReviewedBy(null);
         report.setStatus(ReportStatus.SUBMITTED);
         report.setSubmittedAt(Instant.now());
 
         return ReportResponse.from(reportRepository.save(report));
+    }
+
+    // ── Approve ───────────────────────────────────────────────────────────────
+
+    @Transactional
+    public ReportResponse approveReport(UUID id, User manager) {
+        WeeklyReport report = findOrThrow(id);
+
+        if (report.getStatus() != ReportStatus.SUBMITTED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Only submitted reports can be approved. Current status: " + report.getStatus());
+        }
+
+        report.setStatus(ReportStatus.APPROVED);
+        report.setReviewedAt(Instant.now());
+        report.setReviewedBy(manager);
+
+        return ReportResponse.from(reportRepository.save(report));
+    }
+
+    // ── Reject ────────────────────────────────────────────────────────────────
+
+    @Transactional
+    public ReportResponse rejectReport(UUID id, String comment, User manager) {
+        WeeklyReport report = findOrThrow(id);
+
+        if (report.getStatus() != ReportStatus.SUBMITTED) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Only submitted reports can be rejected. Current status: " + report.getStatus());
+        }
+
+        report.setStatus(ReportStatus.REJECTED);
+        report.setReviewedAt(Instant.now());
+        report.setReviewedBy(manager);
+
+        WeeklyReport savedReport = reportRepository.save(report);
+
+        // Save the rejection comment
+        ReportComment rejectionComment = ReportComment.builder()
+                .report(savedReport)
+                .author(manager)
+                .content(comment)
+                .build();
+        commentRepository.save(rejectionComment);
+
+        return ReportResponse.from(savedReport);
     }
 
     // ── Query ─────────────────────────────────────────────────────────────────

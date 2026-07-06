@@ -105,6 +105,20 @@ public class WeeklyReport {
     @Column(name = "submitted_at")
     private Instant submittedAt;
 
+    /**
+     * Populated when a manager approves or rejects the report.
+     */
+    @Column(name = "reviewed_at")
+    private Instant reviewedAt;
+
+    /**
+     * The manager who approved/rejected the report.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewed_by",
+                foreignKey = @ForeignKey(name = "fk_report_reviewed_by"))
+    private User reviewedBy;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

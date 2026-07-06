@@ -3,7 +3,11 @@ package com.company.weeklyreport.service;
 import com.company.weeklyreport.dto.project.ProjectRequest;
 import com.company.weeklyreport.dto.project.ProjectResponse;
 import com.company.weeklyreport.entity.Project;
+import com.company.weeklyreport.entity.User;
+import com.company.weeklyreport.entity.UserProject;
 import com.company.weeklyreport.repository.ProjectRepository;
+import com.company.weeklyreport.repository.UserRepository;
+import com.company.weeklyreport.repository.UserProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,8 @@ import java.util.UUID;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final UserProjectRepository userProjectRepository;
 
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -91,6 +97,30 @@ public class ProjectService {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "An active project with the name '" + name + "' already exists");
+        }
+    }
+
+    // ── Member Assignment ─────────────────────────────────────────────────────
+
+    @Transactional
+    public void updateProjectMembers(UUID projectId, List<UUID> userIds) {
+        Project project = findOrThrow(projectId);
+
+        // Remove existing associations
+        List<UserProject> existing = userProjectRepository.findByProjectId(projectId);
+        userProjectRepository.deleteAll(existing);
+
+        // Add new associations
+        for (UUID userId : userIds) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "User not found: " + userId));
+
+            UserProject up = UserProject.builder()
+                    .project(project)
+                    .user(user)
+                    .build();
+            userProjectRepository.save(up);
         }
     }
 }

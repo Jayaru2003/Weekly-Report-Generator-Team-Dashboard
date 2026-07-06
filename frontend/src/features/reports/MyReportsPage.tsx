@@ -7,8 +7,10 @@ import { ReportForm } from './ReportForm';
 import type { ReportFormValues } from './ReportForm';
 import { ReportHistory } from './ReportHistory';
 import { Navbar } from '../../components/layout/Navbar';
+import { useAuthContext } from '../../context/AuthContext';
 
 export function MyReportsPage() {
+  const { user } = useAuthContext();
   const [reports, setReports] = useState<WeeklyReport[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [editingReport, setEditingReport] = useState<WeeklyReport | null>(null);
@@ -33,8 +35,17 @@ export function MyReportsPage() {
 
   useEffect(() => {
     loadReports();
-    projectApi.list().then(setProjects).catch(() => {});
-  }, [loadReports]);
+    projectApi.list()
+      .then((data) => {
+        if (user && user.role === 'MEMBER') {
+          const assigned = data.filter(p => p.members?.some(m => m.id === user.id));
+          setProjects(assigned);
+        } else {
+          setProjects(data);
+        }
+      })
+      .catch(() => {});
+  }, [loadReports, user]);
 
   // ── Save Draft ─────────────────────────────────────────────────────────────
 
@@ -54,7 +65,7 @@ export function MyReportsPage() {
       };
 
       let saved: WeeklyReport;
-      if (editingReport && editingReport.status !== 'SUBMITTED') {
+      if (editingReport && (editingReport.status === 'DRAFT' || editingReport.status === 'REJECTED')) {
         saved = await reportApi.update(editingReport.id, payload);
       } else {
         saved = await reportApi.create(payload);
@@ -89,7 +100,7 @@ export function MyReportsPage() {
       };
 
       let targetId: string;
-      if (editingReport && editingReport.status !== 'SUBMITTED') {
+      if (editingReport && (editingReport.status === 'DRAFT' || editingReport.status === 'REJECTED')) {
         // Save first, then submit
         const saved = await reportApi.update(editingReport.id, payload);
         targetId = saved.id;
@@ -130,6 +141,43 @@ export function MyReportsPage() {
             </button>
           )}
         </div>
+
+        {user?.role === 'MEMBER' && (
+          <div className="assigned-projects-banner" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '0.75rem 1rem',
+            background: '#f0f9ff',
+            border: '1px solid #bae6fd',
+            borderRadius: '8px',
+            marginBottom: '1.5rem',
+            color: '#0369a1',
+            fontSize: '0.9rem'
+          }}>
+            <span style={{ fontWeight: 600 }}>💼 Assigned Projects:</span>
+            {projects.length === 0 ? (
+              <span style={{ fontStyle: 'italic', color: '#64748b' }}>
+                No active projects assigned to you. Please contact your manager.
+              </span>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {projects.map(p => (
+                  <span key={p.id} className="project-tag" style={{
+                    background: '#e0f2fe',
+                    color: '#0369a1',
+                    border: '1px solid #bae6fd',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    fontWeight: 500
+                  }}>
+                    {p.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="my-reports-layout">
           <ReportForm

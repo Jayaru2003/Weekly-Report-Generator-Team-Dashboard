@@ -50,6 +50,8 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ReportFormValues>({
     resolver: zodResolver(reportSchema),
@@ -64,6 +66,41 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
       notes: initial?.notes ?? '',
     },
   });
+
+  const watchedStartDate = watch('weekStartDate');
+
+  useEffect(() => {
+    if (watchedStartDate) {
+      const dateParts = watchedStartDate.split('-');
+      if (dateParts.length === 3) {
+        const d = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+        if (!isNaN(d.getTime())) {
+          // Calculate Monday and Sunday of that week
+          const day = d.getDay();
+          const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+          const monday = new Date(d.setDate(diff));
+          
+          const sunday = new Date(monday.getTime());
+          sunday.setDate(monday.getDate() + 6);
+          
+          const formatDate = (dateObj: Date) => {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const dayOfMonth = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${dayOfMonth}`;
+          };
+          
+          const normalizedStart = formatDate(monday);
+          const normalizedEnd = formatDate(sunday);
+          
+          if (watchedStartDate !== normalizedStart) {
+            setValue('weekStartDate', normalizedStart);
+          }
+          setValue('weekEndDate', normalizedEnd);
+        }
+      }
+    }
+  }, [watchedStartDate, setValue]);
 
   // Sync form when editing report changes
   useEffect(() => {
@@ -105,7 +142,8 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
             <input
               id="weekEndDate"
               type="date"
-              disabled={isReadOnly}
+              readOnly
+              className="read-only-input"
               {...register('weekEndDate')}
             />
             {errors.weekEndDate && <span className="field-error">{errors.weekEndDate.message}</span>}
