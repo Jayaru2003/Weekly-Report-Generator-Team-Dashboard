@@ -36,7 +36,7 @@ export function TeamDashboardPage() {
 
   // Interactive UI filter states (applied in frontend over reports data)
   const [cardFilter, setCardFilter] = useState<'ALL' | 'SUBMITTED' | 'BLOCKERS'>('ALL');
-  const [chartStatusFilter, setChartStatusFilter] = useState<'ALL' | 'SUBMITTED' | 'PENDING' | 'LATE'>('ALL');
+  const [chartStatusFilter, setChartStatusFilter] = useState<'ALL' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PENDING' | 'LATE'>('ALL');
   const [clickedDetail, setClickedDetail] = useState<{
     type: 'week' | 'status' | 'project';
     value: string;
@@ -177,10 +177,11 @@ export function TeamDashboardPage() {
   // Filter reports in the frontend for interactive visual states
   const filteredReports = reports.filter(r => {
     // 1. Card Filter
-    if (cardFilter === 'SUBMITTED' && r.status !== 'SUBMITTED' && r.status !== 'APPROVED' && r.status !== 'REJECTED') {
+    if (cardFilter === 'SUBMITTED' && r.status !== 'SUBMITTED' && r.status !== 'APPROVED') {
       return false;
     }
     if (cardFilter === 'BLOCKERS') {
+      if (r.status === 'APPROVED') return false; // Approved reports do not have open blockers
       if (!r.blockers) return false;
       const b = r.blockers.toLowerCase().trim();
       if (b === 'none' || b === 'n/a' || b === '' || b === 'no' || b === 'no blockers') {
@@ -190,11 +191,7 @@ export function TeamDashboardPage() {
 
     // 2. Chart Status Filter
     if (chartStatusFilter !== 'ALL') {
-      if (chartStatusFilter === 'SUBMITTED') {
-        if (r.status !== 'SUBMITTED' && r.status !== 'APPROVED' && r.status !== 'REJECTED') {
-          return false;
-        }
-      } else if (r.status !== chartStatusFilter) {
+      if (r.status !== chartStatusFilter) {
         return false;
       }
     }

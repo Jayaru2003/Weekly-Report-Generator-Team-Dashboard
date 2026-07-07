@@ -44,7 +44,7 @@ interface ReportFormProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, saving }: ReportFormProps) {
-  const isReadOnly = initial?.status === 'SUBMITTED';
+  const isReadOnly = initial?.status === 'SUBMITTED' || initial?.status === 'APPROVED';
 
   const {
     register,
@@ -52,7 +52,7 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
     reset,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<ReportFormValues>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
@@ -233,10 +233,15 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
         {/* Actions */}
         {!isReadOnly && (
           <div className="form-actions">
+            {initial?.status === 'REJECTED' && !isDirty && (
+              <p className="text-warning" style={{ color: '#eab308', marginBottom: '1rem', fontSize: '0.9rem', width: '100%' }}>
+                ⚠️ You must update the report details before you can resubmit.
+              </p>
+            )}
             <button
               type="button"
               className="btn btn-ghost"
-              disabled={saving}
+              disabled={saving || (initial?.status === 'REJECTED' && !isDirty)}
               onClick={handleSubmit(onSaveDraft)}
             >
               {saving ? 'Saving…' : '💾 Save Draft'}
@@ -244,7 +249,7 @@ export function ReportForm({ projects, initial, onSaveDraft, onSubmitReport, sav
             <button
               type="button"
               className="btn btn-primary"
-              disabled={saving}
+              disabled={saving || (initial?.status === 'REJECTED' && !isDirty)}
               onClick={handleSubmit(onSubmitReport)}
             >
               {saving ? 'Submitting…' : '✅ Submit Report'}

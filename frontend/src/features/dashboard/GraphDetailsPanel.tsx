@@ -205,19 +205,20 @@ export function GraphDetailsPanel({
       }
 
       case 'status': {
-        const statusVal = detail.value as 'SUBMITTED' | 'PENDING' | 'LATE';
-        const matchingMembers = submissionStatus.filter(s => {
-          if (statusVal === 'SUBMITTED') {
-            return s.status === 'SUBMITTED' || s.status === 'APPROVED' || s.status === 'REJECTED';
-          }
-          return s.status === statusVal;
-        });
+        const statusVal = detail.value as 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PENDING' | 'LATE';
+        const matchingMembers = submissionStatus.filter(s => s.status === statusVal);
         const totalMembers = submissionStatus.length;
         const percentage = totalMembers > 0 ? Math.round((matchingMembers.length / totalMembers) * 100) : 0;
         
-        let statusColor = '#10b981'; // green
-        let statusIcon = '✅';
-        if (statusVal === 'PENDING') {
+        let statusColor = '#2563eb'; // blue for submitted (awaiting review)
+        let statusIcon = '📤';
+        if (statusVal === 'APPROVED') {
+          statusColor = '#16a34a'; // green
+          statusIcon = '✅';
+        } else if (statusVal === 'REJECTED') {
+          statusColor = '#dc2626'; // red
+          statusIcon = '❌';
+        } else if (statusVal === 'PENDING') {
           statusColor = '#f59e0b'; // amber
           statusIcon = '⏳';
         } else if (statusVal === 'LATE') {
@@ -351,10 +352,10 @@ export function GraphDetailsPanel({
 
       case 'project': {
         const projectName = detail.value;
-        const matchingWorkload = workload.find(w => w.projectName === projectName);
-        
-        const totalHours = matchingWorkload ? matchingWorkload.totalHours : 0;
-        const totalReports = matchingWorkload ? matchingWorkload.reportCount : 0;
+        // When viewing project details, 'workload' now contains member-wise data for that project.
+        // So we sum them up to get the total project workload.
+        const totalHours = workload.reduce((sum, w) => sum + w.totalHours, 0);
+        const totalReports = workload.reduce((sum, w) => sum + w.reportCount, 0);
         const avgHours = totalReports > 0 ? Math.round((totalHours / totalReports) * 10) / 10 : 0;
 
         // Find contributors of this project

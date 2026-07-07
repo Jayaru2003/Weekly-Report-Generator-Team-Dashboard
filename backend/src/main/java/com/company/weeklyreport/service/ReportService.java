@@ -133,10 +133,11 @@ public class ReportService {
         report.setHoursWorked(request.hoursWorked());
         report.setNotes(request.notes());
 
-        // If editing a rejected report, clear review fields so it's ready for re-review
+        // If editing a rejected report, clear review fields and change status to DRAFT
         if (report.getStatus() == ReportStatus.REJECTED) {
             report.setReviewedAt(null);
             report.setReviewedBy(null);
+            report.setStatus(ReportStatus.DRAFT);
         }
 
         return ReportResponse.from(reportRepository.save(report));

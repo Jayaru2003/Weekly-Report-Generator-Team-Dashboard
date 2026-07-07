@@ -41,6 +41,13 @@ frontend/vite.config.js
 .env.*
 backend/.env
 backend/.env.*
+!**/.env.example
+
+# Python Virtual Environments
+.venv/
+venv/
+env/
+ENV/
 
 # Test / coverage
 coverage/
