@@ -15,7 +15,7 @@ export default function AppRoutes() {
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="MANAGER">
             <TeamDashboardPage />
           </ProtectedRoute>
         }

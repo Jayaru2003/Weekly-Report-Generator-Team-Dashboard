@@ -23,8 +23,23 @@ function toAuthUser(response: AuthResponse): AuthUser {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() => {
+    const savedToken = localStorage.getItem('auth_token');
+    if (savedToken) {
+      setAuthToken(savedToken);
+    }
+    return savedToken;
+  });
+
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const savedUser = localStorage.getItem('auth_user');
+    try {
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      localStorage.removeItem('auth_user');
+      return null;
+    }
+  });
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -32,14 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token,
       isAuthenticated: token !== null && user !== null,
       login: (response) => {
+        const userObj = toAuthUser(response);
         setAuthToken(response.token);
         setToken(response.token);
-        setUser(toAuthUser(response));
+        setUser(userObj);
+        localStorage.setItem('auth_token', response.token);
+        localStorage.setItem('auth_user', JSON.stringify(userObj));
       },
       logout: () => {
         setAuthToken(null);
         setToken(null);
         setUser(null);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
       },
     }),
     [user, token],

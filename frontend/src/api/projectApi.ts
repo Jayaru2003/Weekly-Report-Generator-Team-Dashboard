@@ -13,4 +13,7 @@ export const projectApi = {
 
   remove: (id: string) =>
     axiosClient.delete(`/projects/${id}`),
+
+  updateMembers: (id: string, userIds: string[]) =>
+    axiosClient.put(`/projects/${id}/members`, userIds).then(r => r.data),
 };

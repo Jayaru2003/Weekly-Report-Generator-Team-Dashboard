@@ -6,7 +6,7 @@ import { authApi } from '../../api/authApi';
 import { useAuthContext } from '../../context/AuthContext';
 import { postLoginRoute } from '../../components/layout/ProtectedRoute';
 import { getApiErrorMessage } from '../../utils/apiError';
-import { AuthFormLayout, AuthLink, authStyles } from './AuthFormLayout';
+import { AuthFormLayout, AuthLink } from './AuthFormLayout';
 import { loginSchema, type LoginFormValues } from './schemas';
 
 export function LoginPage() {
@@ -50,37 +50,39 @@ export function LoginPage() {
       }
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        {serverError && <div style={authStyles.bannerError}>{serverError}</div>}
+        {serverError && <div className="auth-banner-error">{serverError}</div>}
 
-        <div style={authStyles.field}>
-          <label htmlFor="email" style={authStyles.label}>
+        <div className="auth-field">
+          <label htmlFor="email" className="auth-label">
             Email
           </label>
           <input
             id="email"
             type="email"
             autoComplete="email"
-            style={authStyles.input}
+            className="auth-input"
+            placeholder="yourname@company.com"
             {...register('email')}
           />
-          {errors.email && <p style={authStyles.error}>{errors.email.message}</p>}
+          {errors.email && <p className="auth-error">{errors.email.message}</p>}
         </div>
 
-        <div style={authStyles.field}>
-          <label htmlFor="password" style={authStyles.label}>
+        <div className="auth-field">
+          <label htmlFor="password" className="auth-label">
             Password
           </label>
           <input
             id="password"
             type="password"
             autoComplete="current-password"
-            style={authStyles.input}
+            className="auth-input"
+            placeholder="••••••••"
             {...register('password')}
           />
-          {errors.password && <p style={authStyles.error}>{errors.password.message}</p>}
+          {errors.password && <p className="auth-error">{errors.password.message}</p>}
         </div>
 
-        <button type="submit" style={authStyles.submit} disabled={isSubmitting}>
+        <button type="submit" className="auth-submit" disabled={isSubmitting}>
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </button>
       </form>

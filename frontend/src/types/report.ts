@@ -1,4 +1,4 @@
-export type ReportStatus = 'DRAFT' | 'SUBMITTED';
+export type ReportStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
 
 export interface WeeklyReport {
   id: string;
@@ -14,6 +14,9 @@ export interface WeeklyReport {
   notes?: string | null;
   status: ReportStatus;
   submittedAt?: string | null;
+  reviewedAt?: string | null;
+  reviewedById?: string | null;
+  reviewedByName?: string | null;
   createdAt: string;
   updatedAt: string;
 }

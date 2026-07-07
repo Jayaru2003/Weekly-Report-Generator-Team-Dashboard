@@ -10,6 +10,7 @@ import java.util.UUID;
 /**
  * Response payload for WeeklyReport endpoints.
  * Includes projectName so the frontend avoids a second lookup.
+ * Includes reviewedAt / reviewedByName for the approval workflow.
  */
 public record ReportResponse(
         UUID         id,
@@ -25,6 +26,9 @@ public record ReportResponse(
         String       notes,
         ReportStatus status,
         Instant      submittedAt,
+        Instant      reviewedAt,
+        UUID         reviewedById,
+        String       reviewedByName,
         Instant      createdAt,
         Instant      updatedAt
 ) {
@@ -44,6 +48,11 @@ public record ReportResponse(
                 r.getNotes(),
                 r.getStatus(),
                 r.getSubmittedAt(),
+                r.getReviewedAt(),
+                r.getReviewedBy() != null ? r.getReviewedBy().getId() : null,
+                r.getReviewedBy() != null
+                        ? r.getReviewedBy().getFirstName() + " " + r.getReviewedBy().getLastName()
+                        : null,
                 r.getCreatedAt(),
                 r.getUpdatedAt()
         );
