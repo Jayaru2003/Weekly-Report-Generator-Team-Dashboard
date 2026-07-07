@@ -56,6 +56,7 @@ export function SubmissionStatusChart({
             <Tooltip
               cursor={{ fill: '#f1f5f9', opacity: 0.4 }}
               contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, color: '#fff' }}
+              itemStyle={{ color: '#ffffff' }}
             />
             <Bar 
               dataKey="count" 

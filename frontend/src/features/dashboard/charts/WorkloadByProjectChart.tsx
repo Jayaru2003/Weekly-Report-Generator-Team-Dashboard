@@ -31,7 +31,7 @@ export function WorkloadByProjectChart({
   return (
     <div className="chart-card">
       <h3 className="chart-title">
-        Workload by Project ({hasHours ? 'Hours' : 'Submissions'})
+        Workload by Project ({hasHours ? 'Hours' : 'Submissions'}) (Click slices to filter)
       </h3>
       <div className="chart-container chart-container-md" style={{ width: '100%', height: 360, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {chartData.length === 0 ? (
@@ -71,6 +71,7 @@ export function WorkloadByProjectChart({
               </Pie>
               <Tooltip
                 contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, color: '#fff' }}
+                itemStyle={{ color: '#ffffff' }}
                 formatter={(value: any, name: any, props: any) => [
                   `${value} ${props.payload.metric}`,
                   name,

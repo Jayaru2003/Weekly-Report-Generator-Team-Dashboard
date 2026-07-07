@@ -5,12 +5,24 @@
 /* -- Fonts & Reset ---------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+:root {
+  --bg-primary: #f0f2f5;
+  --bg-secondary: #f8fafc;
+  --surface-color: #ffffff;
+  --border-color: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: #f0f2f5;
-  color: #1a1a2e;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.6;
 }
 
@@ -955,142 +967,97 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: 0.05em;
 }
 
-/* Visual Avatars List */
-.visual-avatar-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  padding: 0.25rem 0;
-}
-
-.visual-avatar-item {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  border: 2.5px solid transparent;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  color: #ffffff;
-}
-
-.visual-avatar-item:hover {
-  transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-  z-index: 5;
-}
-
-.visual-avatar-item.active {
-  transform: scale(1.05);
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 5;
-}
-
-.visual-avatar-item.show-all-avatar {
-  background: #f1f5f9;
-  color: #475569;
-  border: 2px dashed #cbd5e1;
-  font-size: 0.72rem;
-  font-weight: 600;
-  box-shadow: none;
-}
-
-.visual-avatar-item.show-all-avatar.active {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 2px solid #2563eb;
-}
-
-/* Visual Project Pills */
-.visual-pill-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.visual-pill-item {
-  background: #f8fafc;
+/* Styled Dropdown Select Boxes */
+.filter-select {
+  padding: 0.65rem 1rem;
   border: 1.5px solid #e2e8f0;
-  color: #64748b;
-  padding: 0.45rem 0.85rem;
-  border-radius: 20px;
-  font-size: 0.82rem;
-  font-weight: 600;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  color: #1e293b;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  width: 100%;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
 }
 
-.visual-pill-item:hover {
-  background: #f1f5f9;
+.filter-select:hover {
   border-color: #cbd5e1;
-  color: #334155;
-  transform: translateY(-1px);
+  background-color: #f8fafc;
 }
 
-.visual-pill-item.active {
-  background: #eff6ff;
+.filter-select:focus {
+  outline: none;
   border-color: #2563eb;
-  color: #1d4ed8;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
 }
 
-/* Unified Date Navigator Card Widget */
-.week-navigator-card {
+/* Date Range Container */
+.date-range-container {
   display: flex;
   align-items: center;
-  background: #f8fafc;
+  gap: 0.75rem;
+  background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 12px;
-  padding: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   width: 100%;
-  justify-content: space-between;
 }
 
-.week-nav-btn {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  font-size: 1.2rem;
-  width: 32px;
-  height: 32px;
+.date-input-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  flex-direction: column;
+  flex: 1;
 }
 
-.week-nav-btn:hover {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #bfdbfe;
-  transform: scale(1.05);
+.date-input-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
 }
 
-.week-navigator-card input[type="date"] {
+.filter-date-input {
   border: none;
   background: transparent;
-  padding: 0.4rem;
+  padding: 0;
   font-size: 0.88rem;
   font-weight: 600;
   color: #1e293b;
-  text-align: center;
-  cursor: pointer;
   outline: none;
-  width: 130px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.date-range-to {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  padding: 0 0.25rem;
+}
+
+@media (max-width: 480px) {
+  .date-range-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .date-range-to {
+    text-align: center;
+    padding: 0;
+  }
 }
 
 .week-quick-pills {
@@ -1842,19 +1809,18 @@ a { color: inherit; text-decoration: none; }
   transition: opacity 0.35s ease;
 }
 
-/* -- Graph Click Details Panel ------------------------------ */
+/* -- Graph Click Details Panel (Inline) --------------------- */
 .graph-details-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #ffffff;
   border: 1px solid rgba(226, 232, 240, 0.8);
   border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
   padding: 2rem;
   margin-top: 1.5rem;
   margin-bottom: 2rem;
   animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transition: all 0.3s ease;
+  border-left: 5px solid #2563eb;
 }
 
 @keyframes slideDown {
@@ -1918,6 +1884,12 @@ a { color: inherit; text-decoration: none; }
   background: #e2e8f0;
   color: #1e293b;
   transform: rotate(90deg);
+}
+
+.graph-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .graph-details-metrics-grid {

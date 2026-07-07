@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { TeamReport, SubmissionStatus, TrendData, WorkloadByProject } from '../../types/dashboard';
 import type { Project } from '../../types/project';
 
@@ -27,6 +27,14 @@ export function GraphDetailsPanel({
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
   const [sendingReminderId, setSendingReminderId] = useState<string | null>(null);
   const [broadcasting, setBroadcasting] = useState(false);
+
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [detail]);
 
   const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type });
@@ -474,7 +482,7 @@ export function GraphDetailsPanel({
   };
 
   return (
-    <div className="graph-details-panel">
+    <div ref={panelRef} className="graph-details-panel">
       {/* Toast Alert */}
       {toast && (
         <div className={`toast ${toast.type === 'error' ? 'toast-error' : 'toast-success'}`} style={{ bottom: '2rem', right: '2rem' }}>

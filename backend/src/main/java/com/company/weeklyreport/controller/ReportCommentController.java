@@ -33,7 +33,7 @@ public class ReportCommentController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('MANAGER')")
     public CommentResponse addComment(
-            @PathVariable UUID reportId,
+            @PathVariable("reportId") UUID reportId,
             @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal User principal) {
         return commentService.addComment(reportId, request.content(), principal);
@@ -41,7 +41,7 @@ public class ReportCommentController {
 
     @GetMapping
     public List<CommentResponse> getComments(
-            @PathVariable UUID reportId,
+            @PathVariable("reportId") UUID reportId,
             @AuthenticationPrincipal User principal) {
         return commentService.getComments(reportId, principal);
     }
