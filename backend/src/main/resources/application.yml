@@ -1,10 +1,10 @@
 spring:
   datasource:
-    # Supabase PostgreSQL URL format:
-    # jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
-    url: jdbc:postgresql://db.bbxkjzgdjwkjxpshipng.supabase.co:5432/postgres?sslmode=require
-    username: postgres
-    password: "Jayaru#20031105"
+    # Supabase PostgreSQL direct connection URL (port 5432).
+    # NOTE: Credentials are supplied separately — do NOT embed the password in the URL.
+    url: ${DB_URL:jdbc:postgresql://db.bbxkjzgdjwkjxpshipng.supabase.co:5432/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Jayaru#20031105}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -31,7 +31,7 @@ server:
 
 application:
   jwt:
-    secret: ${JWT_SECRET}
+    secret: ${JWT_SECRET:local-dev-secret-key-must-be-at-least-32-chars-long}
     # Token expiration in milliseconds — 24 hours by default
     expiration-ms: 86400000
 

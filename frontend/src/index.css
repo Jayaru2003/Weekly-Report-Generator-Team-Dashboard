@@ -35,6 +35,11 @@
   --input-focus-bg: rgba(15, 23, 42, 0.8);
   --input-focus-border: #3b82f6;
   --input-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+
+  /* Redefined layout variables for dark-themed CommentsPanel */
+  --surface-color: #1e293b;
+  --bg-secondary: #0f172a;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -771,12 +776,14 @@ a { color: inherit; text-decoration: none; }
 
 /* Rejected report card highlight on member history */
 .history-card-rejected {
-  border-color: #fca5a5;
-  background: #fff9f9;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  background: rgba(239, 68, 68, 0.08) !important;
 }
 
 .history-card-rejected:hover {
-  border-color: #f87171;
+  border-color: rgba(239, 68, 68, 0.7) !important;
+  background: rgba(239, 68, 68, 0.12) !important;
+  box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15) !important;
 }
 
 /* -- Horizontal Activity Feed -- */

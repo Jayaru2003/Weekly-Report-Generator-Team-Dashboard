@@ -39,15 +39,15 @@ function RejectionComment({ reportId }: { reportId: string }) {
     <div style={{
       marginTop: '0.65rem',
       padding: '0.6rem 0.85rem',
-      background: '#fff1f2',
-      border: '1px solid #fecaca',
+      background: 'rgba(239, 68, 68, 0.1)',
+      border: '1px solid rgba(239, 68, 68, 0.25)',
       borderRadius: '8px',
       fontSize: '0.83rem',
     }}>
-      <div style={{ fontWeight: 600, color: '#dc2626', marginBottom: '3px' }}>
+      <div style={{ fontWeight: 600, color: '#f43f5e', marginBottom: '3px' }}>
         💬 Manager feedback ({first.authorName}):
       </div>
-      <p style={{ margin: 0, color: '#7f1d1d', whiteSpace: 'pre-wrap', lineHeight: 1.4 }}>
+      <p style={{ margin: 0, color: '#fecdd3', whiteSpace: 'pre-wrap', lineHeight: 1.4 }}>
         {first.content}
       </p>
     </div>
