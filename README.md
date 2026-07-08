@@ -64,7 +64,7 @@ The backend application is configured to use **PostgreSQL**. You can either set 
    jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
    ```
 4. Note down your database password.
-
+Jayaru#20031105
 ---
 
 ## 2. Installing Dependencies
