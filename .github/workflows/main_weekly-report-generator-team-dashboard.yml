@@ -50,4 +50,4 @@ jobs:
           app-name: 'Weekly-Report-Generator-Team-Dashboard'
           slot-name: 'Production'
           package: '*.jar'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3A99E21B3D3D47AB90721FB4C9719EA2 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_EB67602789794861A6C16C838444F8D5 }}
