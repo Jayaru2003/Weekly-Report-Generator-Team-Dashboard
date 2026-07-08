@@ -181,9 +181,18 @@ export function SubmissionStatusTable({ reports, projects, loading, onRefresh }:
                   !['none', 'n/a', '', 'no', 'no blockers'].includes(r.blockers.toLowerCase().trim());
                 const isSubmitted = r.status === 'SUBMITTED';
                 const isActionLoading = actionLoading === r.reportId;
+                const hasReport = !!r.reportId;
+                const rowClasses = [
+                  hasBlockers ? 'row-has-blockers' : '',
+                  hasReport ? 'clickable-row' : ''
+                ].filter(Boolean).join(' ');
 
                 return (
-                  <tr key={idx} className={hasBlockers ? 'row-has-blockers' : ''}>
+                  <tr
+                    key={idx}
+                    className={rowClasses}
+                    onClick={hasReport ? () => setSelectedReport(r) : undefined}
+                  >
                     <td className="td-name">
                       <div>{r.firstName} {r.lastName}</div>
                       <div className="muted" style={{ fontSize: '0.8rem', fontWeight: 400 }}>{r.email}</div>
@@ -237,14 +246,17 @@ export function SubmissionStatusTable({ reports, projects, loading, onRefresh }:
                     <td className="td-actions" style={{ minWidth: '200px' }}>
                       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
                         {r.reportId && (
-                          <button className="btn btn-ghost btn-sm" onClick={() => setSelectedReport(r)}>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={(e) => { e.stopPropagation(); setSelectedReport(r); }}
+                          >
                             🔍 View
                           </button>
                         )}
                         {r.reportId && (
                           <button
                             className="btn btn-ghost btn-sm"
-                            onClick={() => setCommentsTarget(r)}
+                            onClick={(e) => { e.stopPropagation(); setCommentsTarget(r); }}
                             title="View / add comments"
                           >
                             💬
@@ -255,7 +267,7 @@ export function SubmissionStatusTable({ reports, projects, loading, onRefresh }:
                             <button
                               className="btn btn-sm"
                               style={{ background: '#16a34a', color: 'white', opacity: isActionLoading ? 0.6 : 1 }}
-                              onClick={() => handleApprove(r)}
+                              onClick={(e) => { e.stopPropagation(); handleApprove(r); }}
                               disabled={isActionLoading}
                               title="Approve this report"
                             >
@@ -264,7 +276,7 @@ export function SubmissionStatusTable({ reports, projects, loading, onRefresh }:
                             <button
                               className="btn btn-sm"
                               style={{ background: '#dc2626', color: 'white', opacity: isActionLoading ? 0.6 : 1 }}
-                              onClick={() => setRejectTarget(r)}
+                              onClick={(e) => { e.stopPropagation(); setRejectTarget(r); }}
                               disabled={isActionLoading}
                               title="Reject this report"
                             >
