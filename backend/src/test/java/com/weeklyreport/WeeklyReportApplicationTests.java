@@ -28,9 +28,78 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest(classes = WeeklyReportApplication.class)
-@ActiveProfiles("test")
+@AutoConfigureMockMvc
+// @ActiveProfiles("test")
 class WeeklyReportApplicationTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    @Transactional
+    void testCommentControllerRealIntegration() throws Exception {
+        System.out.println("Testing real DB integration of ReportCommentController...");
+        // 1. Create a dummy user
+        User user = User.builder()
+                .firstName("Test")
+                .lastName("User")
+                .email("test.comments." + UUID.randomUUID() + "@example.com")
+                .passwordHash("password")
+                .role(Role.MANAGER)
+                .build();
+        user = userRepository.save(user);
+
+        // 2. Create a dummy project
+        Project project = Project.builder()
+                .name("Test Project " + UUID.randomUUID())
+                .description("Desc")
+                .isActive(true)
+                .build();
+        project = projectRepository.save(project);
+
+        // 3. Create a weekly report draft
+        WeeklyReport report = WeeklyReport.builder()
+                .user(user)
+                .project(project)
+                .weekStartDate(LocalDate.now())
+                .weekEndDate(LocalDate.now().plusDays(6))
+                .tasksCompleted("Completed task 1")
+                .tasksPlanned("Planned task 1")
+                .blockers("None")
+                .hoursWorked(40.0f)
+                .status(ReportStatus.SUBMITTED)
+                .build();
+        report = weeklyReportRepository.save(report);
+
+        // 4. Perform MockMvc call
+        mockMvc.perform(get("/api/reports/" + report.getId() + "/comments")
+                        .with(user(user)))
+                .andExpect(status().isOk());
+
+        System.out.println("Real DB integration of ReportCommentController test passed!");
+    }
+
+    @Test
+    @Transactional
+    void testListReports() {
+        try {
+            System.out.println(">>> LISTING REAL DB REPORTS <<<");
+            weeklyReportRepository.findAll().forEach(r -> {
+                System.out.println("Report ID: " + r.getId() + ", User Name: " + r.getUser().getFirstName() + " " + r.getUser().getLastName() + ", Project Name: " + r.getProject().getName() + ", Status: " + r.getStatus() + ", Week Start: " + r.getWeekStartDate());
+            });
+            System.out.println(">>> END OF LISTING REAL DB REPORTS <<<");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
     @Autowired
     private DashboardService dashboardService;

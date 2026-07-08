@@ -29,6 +29,7 @@ export function CommentsPanel({ reportId, memberName, role, onClose }: CommentsP
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     reportApi.getComments(reportId)
       .then(data => {
         setComments(data);
@@ -47,6 +48,7 @@ export function CommentsPanel({ reportId, memberName, role, onClose }: CommentsP
   async function handleSend() {
     if (!newComment.trim() || sending) return;
     setSending(true);
+    setError(null);
     try {
       const added = await reportApi.addComment(reportId, newComment.trim());
       setComments(prev => [...prev, added]);

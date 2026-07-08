@@ -44,6 +44,7 @@ export function TasksTrendChart({ data, loading, onWeekClick }: TasksTrendChartP
             <Tooltip
               contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, color: '#fff' }}
               labelStyle={{ fontWeight: 600, color: '#94a3b8' }}
+              itemStyle={{ color: '#ffffff' }}
             />
             <Legend verticalAlign="top" height={36} />
             <Line

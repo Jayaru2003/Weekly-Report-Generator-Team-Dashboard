@@ -139,12 +139,12 @@ public class DashboardService {
 
         if (projectId != null) {
             totalTeamMembers = userRepository.countMembersByProjectId(projectId);
-            totalReportsSubmitted = reportRepository.countByWeekStartDateAndProjectIdAndStatusIn(resolvedWeek, projectId, Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED, ReportStatus.REJECTED));
+            totalReportsSubmitted = reportRepository.countByWeekStartDateAndProjectIdAndStatusIn(resolvedWeek, projectId, Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED));
             distinctUsersSubmitted = reportRepository.countDistinctUsersSubmittedForWeekAndProject(resolvedWeek, projectId);
             openBlockersCount = reportRepository.countOpenBlockersForProject(resolvedWeek, projectId);
         } else {
             totalTeamMembers       = userRepository.countMembersWithAtLeastOneProject();
-            totalReportsSubmitted  = reportRepository.countByWeekStartDateAndStatusIn(resolvedWeek, Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED, ReportStatus.REJECTED));
+            totalReportsSubmitted  = reportRepository.countByWeekStartDateAndStatusIn(resolvedWeek, Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED));
             distinctUsersSubmitted = reportRepository.countDistinctUsersSubmittedForWeek(resolvedWeek);
             openBlockersCount      = reportRepository.countOpenBlockers(resolvedWeek);
         }
@@ -167,7 +167,7 @@ public class DashboardService {
         LocalDate end   = endDate   != null ? endDate   : getEndOfCurrentWeek();
 
         List<WeeklyReport> reports = reportRepository.findByTrendsFilter(
-                Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED, ReportStatus.REJECTED), 
+                Arrays.asList(ReportStatus.SUBMITTED, ReportStatus.APPROVED), 
                 start, end, userId, projectId);
 
         Map<LocalDate, Integer> weeklyCounts = reports.stream()
@@ -242,7 +242,11 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public List<WorkloadByProjectResponse> getWorkloadByProject(LocalDate week, UUID projectId) {
         LocalDate resolvedWeek = week != null ? week : getStartOfCurrentWeek();
-        return reportRepository.getWorkloadByProject(resolvedWeek, projectId);
+        if (projectId != null) {
+            return reportRepository.getWorkloadByMemberForProject(resolvedWeek, projectId);
+        } else {
+            return reportRepository.getWorkloadByProject(resolvedWeek, null);
+        }
     }
 
     @Transactional(readOnly = true)

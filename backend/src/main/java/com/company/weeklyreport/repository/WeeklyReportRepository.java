@@ -38,16 +38,16 @@ public interface WeeklyReportRepository extends JpaRepository<WeeklyReport, UUID
     long countByWeekStartDateAndProjectIdAndStatusIn(LocalDate weekStartDate, UUID projectId, List<ReportStatus> statuses);
 
     // Native queries — no nullable UUID params, so PostgreSQL can infer types correctly
-    @Query(value = "SELECT COUNT(DISTINCT user_id) FROM public.weekly_reports WHERE week_start_date = :week AND status IN ('SUBMITTED', 'APPROVED', 'REJECTED')", nativeQuery = true)
+    @Query(value = "SELECT COUNT(DISTINCT user_id) FROM public.weekly_reports WHERE week_start_date = :week AND status IN ('SUBMITTED', 'APPROVED')", nativeQuery = true)
     long countDistinctUsersSubmittedForWeek(@Param("week") LocalDate week);
 
-    @Query(value = "SELECT COUNT(DISTINCT user_id) FROM public.weekly_reports WHERE week_start_date = :week AND project_id = :projectId AND status IN ('SUBMITTED', 'APPROVED', 'REJECTED')", nativeQuery = true)
+    @Query(value = "SELECT COUNT(DISTINCT user_id) FROM public.weekly_reports WHERE week_start_date = :week AND project_id = :projectId AND status IN ('SUBMITTED', 'APPROVED')", nativeQuery = true)
     long countDistinctUsersSubmittedForWeekAndProject(@Param("week") LocalDate week, @Param("projectId") UUID projectId);
 
-    @Query(value = "SELECT COUNT(*) FROM public.weekly_reports WHERE week_start_date = :week AND status IN ('SUBMITTED', 'APPROVED', 'REJECTED') AND blockers IS NOT NULL AND TRIM(blockers) != '' AND LOWER(TRIM(blockers)) != 'none' AND LOWER(TRIM(blockers)) != 'n/a'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM public.weekly_reports WHERE week_start_date = :week AND status IN ('SUBMITTED', 'REJECTED') AND blockers IS NOT NULL AND TRIM(blockers) != '' AND LOWER(TRIM(blockers)) != 'none' AND LOWER(TRIM(blockers)) != 'n/a'", nativeQuery = true)
     long countOpenBlockers(@Param("week") LocalDate week);
 
-    @Query(value = "SELECT COUNT(*) FROM public.weekly_reports WHERE week_start_date = :week AND project_id = :projectId AND status IN ('SUBMITTED', 'APPROVED', 'REJECTED') AND blockers IS NOT NULL AND TRIM(blockers) != '' AND LOWER(TRIM(blockers)) != 'none' AND LOWER(TRIM(blockers)) != 'n/a'", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM public.weekly_reports WHERE week_start_date = :week AND project_id = :projectId AND status IN ('SUBMITTED', 'REJECTED') AND blockers IS NOT NULL AND TRIM(blockers) != '' AND LOWER(TRIM(blockers)) != 'none' AND LOWER(TRIM(blockers)) != 'n/a'", nativeQuery = true)
     long countOpenBlockersForProject(@Param("week") LocalDate week, @Param("projectId") UUID projectId);
 
     @Query("""
@@ -58,11 +58,25 @@ public interface WeeklyReportRepository extends JpaRepository<WeeklyReport, UUID
         )
         FROM WeeklyReport r
         WHERE r.weekStartDate = :week
-          AND r.status IN ('SUBMITTED', 'APPROVED', 'REJECTED')
+          AND r.status IN ('SUBMITTED', 'APPROVED')
           AND (:projectId IS NULL OR r.project.id = :projectId)
         GROUP BY r.project.name
     """)
     List<WorkloadByProjectResponse> getWorkloadByProject(@Param("week") LocalDate week, @Param("projectId") UUID projectId);
+
+    @Query("""
+        SELECT new com.company.weeklyreport.dto.dashboard.WorkloadByProjectResponse(
+            CONCAT(r.user.firstName, ' ', r.user.lastName),
+            COUNT(r),
+            COALESCE(SUM(r.hoursWorked), 0.0)
+        )
+        FROM WeeklyReport r
+        WHERE r.weekStartDate = :week
+          AND r.status IN ('SUBMITTED', 'APPROVED')
+          AND r.project.id = :projectId
+        GROUP BY r.user.id, r.user.firstName, r.user.lastName
+    """)
+    List<WorkloadByProjectResponse> getWorkloadByMemberForProject(@Param("week") LocalDate week, @Param("projectId") UUID projectId);
 
     List<WeeklyReport> findByWeekStartDateAndProjectId(LocalDate weekStartDate, UUID projectId);
 

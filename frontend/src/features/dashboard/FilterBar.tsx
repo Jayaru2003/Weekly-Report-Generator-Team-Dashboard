@@ -62,7 +62,31 @@ export function FilterBar({
   onWeekChange,
   onClearAll,
 }: FilterBarProps) {
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const startParts = selectedWeek.split('-');
+  const startDateObj = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+  const endDateObj = new Date(startDateObj.getTime());
+  endDateObj.setDate(startDateObj.getDate() + 6);
+
+  const formatDateForInput = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const startDateStr = selectedWeek;
+  const endDateStr = formatDateForInput(endDateObj);
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      const dateParts = val.split('-');
+      const date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+      onWeekChange(getWeekRange(date).start);
+    }
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (val) {
       const dateParts = val.split('-');
@@ -97,92 +121,67 @@ export function FilterBar({
 
       <div className="filter-bar-controls">
         <div className="filter-group">
-          <label>
+          <label htmlFor="memberSelect">
             <span className="filter-label-icon">👤</span> Team Member
           </label>
-          <div className="visual-avatar-list">
-            <div
-              className={`visual-avatar-item show-all-avatar ${!selectedMemberId ? 'active' : ''}`}
-              onClick={() => onMemberChange('')}
-              title="Show All Members"
-            >
-              All
-            </div>
-            {members.map(m => {
-              const initials = m.userName
-                ? m.userName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
-                : 'M';
-              const memberProjects = projects.filter(p => p.members?.some(pm => pm.id === m.userId));
-              const projectNames = memberProjects.map(p => p.name).join(', ');
-              const tooltip = m.userName + (projectNames ? ` (Projects: ${projectNames})` : ' (No assigned projects)');
-
-              return (
-                <div
-                  key={m.userId}
-                  className={`visual-avatar-item ${selectedMemberId === m.userId ? 'active' : ''}`}
-                  style={{ background: getAvatarGradient(m.userName || '') }}
-                  onClick={() => onMemberChange(m.userId)}
-                  title={tooltip}
-                >
-                  {initials}
-                </div>
-              );
-            })}
-          </div>
+          <select
+            id="memberSelect"
+            className="filter-select"
+            value={selectedMemberId}
+            onChange={(e) => onMemberChange(e.target.value)}
+          >
+            <option value="">👤 All Members</option>
+            {members.map(m => (
+              <option key={m.userId} value={m.userId}>
+                {m.userName}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="filter-group">
-          <label>
+          <label htmlFor="projectSelect">
             <span className="filter-label-icon">📁</span> Project
           </label>
-          <div className="visual-pill-list">
-            <div
-              className={`visual-pill-item ${!selectedProjectId ? 'active' : ''}`}
-              onClick={() => onProjectChange('')}
-            >
-              📂 All Projects
-            </div>
+          <select
+            id="projectSelect"
+            className="filter-select"
+            value={selectedProjectId}
+            onChange={(e) => onProjectChange(e.target.value)}
+          >
+            <option value="">📁 All Projects</option>
             {projects.map(p => (
-              <div
-                key={p.id}
-                className={`visual-pill-item ${selectedProjectId === p.id ? 'active' : ''}`}
-                onClick={() => onProjectChange(p.id)}
-              >
-                🏷️ {p.name}
-              </div>
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
 
         <div className="filter-group filter-group-week">
-          <label htmlFor="weekFilter">
+          <label>
             <span className="filter-label-icon">📅</span> Week Range
           </label>
-          <div className="week-navigator-card">
-            <button
-              type="button"
-              className="week-nav-btn"
-              onClick={() => onWeekChange(shiftWeek(selectedWeek, -1))}
-              title="Previous week"
-              aria-label="Previous week"
-            >
-              ‹
-            </button>
-            <input
-              id="weekFilter"
-              type="date"
-              value={selectedWeek}
-              onChange={handleDateChange}
-            />
-            <button
-              type="button"
-              className="week-nav-btn"
-              onClick={() => onWeekChange(shiftWeek(selectedWeek, 1))}
-              title="Next week"
-              aria-label="Next week"
-            >
-              ›
-            </button>
+          <div className="date-range-container">
+            <div className="date-input-wrapper">
+              <span className="date-input-label">Start Date</span>
+              <input
+                type="date"
+                className="filter-date-input"
+                value={startDateStr}
+                onChange={handleStartDateChange}
+              />
+            </div>
+            <span className="date-range-to">to</span>
+            <div className="date-input-wrapper">
+              <span className="date-input-label">End Date</span>
+              <input
+                type="date"
+                className="filter-date-input"
+                value={endDateStr}
+                onChange={handleEndDateChange}
+              />
+            </div>
           </div>
           <div className="week-quick-pills">
             <button

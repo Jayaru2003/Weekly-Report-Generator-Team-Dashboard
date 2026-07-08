@@ -13,8 +13,8 @@ import type { SubmissionStatus } from '../../../types/dashboard';
 interface SubmissionStatusChartProps {
   data: SubmissionStatus[];
   loading: boolean;
-  activeStatusFilter?: 'ALL' | 'SUBMITTED' | 'PENDING' | 'LATE';
-  onStatusClick?: (status: 'SUBMITTED' | 'PENDING' | 'LATE' | 'ALL') => void;
+  activeStatusFilter?: 'ALL' | 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PENDING' | 'LATE';
+  onStatusClick?: (status: 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PENDING' | 'LATE' | 'ALL') => void;
 }
 
 export function SubmissionStatusChart({
@@ -27,19 +27,23 @@ export function SubmissionStatusChart({
     return <div className="chart-loading">Loading status chart…</div>;
   }
 
-  // Aggregate counts of Submitted, Pending, and Late
+  // Aggregate counts of Approved, Submitted, Rejected, Pending, and Late
   const counts = data.reduce(
     (acc, cur) => {
-      if (cur.status === 'SUBMITTED' || cur.status === 'APPROVED' || cur.status === 'REJECTED') acc.submitted++;
+      if (cur.status === 'APPROVED') acc.approved++;
+      else if (cur.status === 'REJECTED') acc.rejected++;
+      else if (cur.status === 'SUBMITTED') acc.submitted++;
       else if (cur.status === 'LATE') acc.late++;
       else acc.pending++;
       return acc;
     },
-    { submitted: 0, pending: 0, late: 0 }
+    { approved: 0, submitted: 0, rejected: 0, pending: 0, late: 0 }
   );
 
   const chartData = [
-    { name: 'Submitted', count: counts.submitted, color: '#10b981', statusVal: 'SUBMITTED' },
+    { name: 'Approved', count: counts.approved, color: '#16a34a', statusVal: 'APPROVED' },
+    { name: 'Submitted', count: counts.submitted, color: '#2563eb', statusVal: 'SUBMITTED' },
+    { name: 'Rejected', count: counts.rejected, color: '#dc2626', statusVal: 'REJECTED' },
     { name: 'Pending', count: counts.pending, color: '#f59e0b', statusVal: 'PENDING' },
     { name: 'Late', count: counts.late, color: '#ef4444', statusVal: 'LATE' },
   ];
@@ -56,6 +60,7 @@ export function SubmissionStatusChart({
             <Tooltip
               cursor={{ fill: '#f1f5f9', opacity: 0.4 }}
               contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, color: '#fff' }}
+              itemStyle={{ color: '#ffffff' }}
             />
             <Bar 
               dataKey="count" 
@@ -65,7 +70,7 @@ export function SubmissionStatusChart({
               onClick={(entry) => {
                 const statusVal = entry?.statusVal || entry?.payload?.statusVal;
                 if (statusVal) {
-                  const clickedStatus = statusVal as 'SUBMITTED' | 'PENDING' | 'LATE';
+                  const clickedStatus = statusVal as 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'PENDING' | 'LATE';
                   onStatusClick?.(activeStatusFilter === clickedStatus ? 'ALL' : clickedStatus);
                 }
               }}
