@@ -146,10 +146,10 @@ function AssignMembersModal({ project, allMembers, onClose, onSave }: AssignMemb
                 width: '100%',
                 padding: '0.7rem 0.9rem',
                 fontSize: '0.92rem',
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
                 borderRadius: '8px',
-                color: '#1e293b',
+                color: 'var(--input-color)',
                 boxSizing: 'border-box'
               }}
             />
@@ -159,7 +159,7 @@ function AssignMembersModal({ project, allMembers, onClose, onSave }: AssignMemb
             maxHeight: '240px',
             overflowY: 'auto',
             marginBottom: '1.5rem',
-            border: '1px solid #e2e8f0',
+            border: '1px solid var(--border-color)',
             borderRadius: '8px',
             padding: '0.5rem',
             display: 'flex',
@@ -183,7 +183,7 @@ function AssignMembersModal({ project, allMembers, onClose, onSave }: AssignMemb
                       padding: '0.5rem 0.75rem',
                       borderRadius: '6px',
                       cursor: 'pointer',
-                      background: checked ? '#f0fdf4' : 'transparent',
+                      background: checked ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
                       transition: 'background-color 0.15s'
                     }}
                     className="member-item-label"
@@ -195,10 +195,10 @@ function AssignMembersModal({ project, allMembers, onClose, onSave }: AssignMemb
                       style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                     />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontWeight: 600, fontSize: '0.88rem', color: '#1e293b' }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
                         {m.firstName} {m.lastName}
                       </span>
-                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                         {m.email}
                       </span>
                     </div>
